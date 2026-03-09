@@ -1,0 +1,2311 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ledger — Financial OS</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;1,9..144,300&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+:root {
+  --sw: 220px;
+  --sw-collapsed: 60px;
+  --topbar-h: 56px;
+
+  /* Palette — refined dark sidebar + warm off-white canvas */
+  --sidebar-bg: #111210;
+  --sidebar-border: rgba(255,255,255,0.06);
+  --sidebar-hover: rgba(255,255,255,0.05);
+  --sidebar-active: rgba(255,255,255,0.09);
+
+  --canvas: #f5f3ef;
+  --surface: #ffffff;
+  --surface-alt: #f0ede7;
+  --surface-deep: #e8e4dc;
+  --border: #e0dbd2;
+  --border-strong: #cbc5ba;
+
+  --ink: #18160f;
+  --ink-2: #3a3830;
+  --ink-3: #6b6860;
+  --ink-4: #a09b92;
+  --ink-5: #ccc8c0;
+
+  --green: #1e5c3a;
+  --green-mid: #2e7d52;
+  --green-light: #ebf5ef;
+  --green-glow: rgba(30,92,58,0.12);
+
+  --red: #9e2a2b;
+  --red-light: #faedec;
+
+  --amber: #8a5a1e;
+  --amber-light: #fdf3e6;
+
+  --blue: #1a3f6e;
+  --blue-light: #eaf1fb;
+
+  --accent: #1e5c3a;
+
+  --shadow-xs: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow-sm: 0 1px 4px rgba(0,0,0,0.07), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.04);
+  --shadow-lg: 0 16px 48px rgba(0,0,0,0.12), 0 4px 12px rgba(0,0,0,0.06);
+
+  --r: 10px;
+  --r-sm: 6px;
+  --r-xs: 4px;
+
+  --transition: 0.2s cubic-bezier(0.4,0,0.2,1);
+  --transition-spring: 0.3s cubic-bezier(0.34,1.56,0.64,1);
+}
+
+html, body { height: 100%; overflow: hidden; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13.5px;
+  background: var(--canvas);
+  color: var(--ink);
+  display: flex;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ════════════════════════════════════════
+   SIDEBAR
+════════════════════════════════════════ */
+.sidebar {
+  width: var(--sw);
+  flex-shrink: 0;
+  background: var(--sidebar-bg);
+  display: flex;
+  flex-direction: column;
+  transition: width var(--transition);
+  overflow: hidden;
+  position: relative;
+  z-index: 20;
+}
+
+.sidebar.collapsed { width: var(--sw-collapsed); }
+
+/* Brand */
+.sidebar-brand {
+  height: var(--topbar-h);
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--sidebar-border);
+  gap: 10px;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.brand-mark {
+  width: 28px; height: 28px;
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.brand-mark svg { display: block; }
+
+.brand-text {
+  font-family: 'Fraunces', serif;
+  font-size: 1.15rem;
+  font-weight: 400;
+  color: #fff;
+  letter-spacing: -0.3px;
+  white-space: nowrap;
+  opacity: 1;
+  transition: opacity var(--transition);
+}
+
+.sidebar.collapsed .brand-text { opacity: 0; pointer-events: none; }
+
+/* Balance panel */
+.sidebar-balance-panel {
+  margin: 12px;
+  padding: 14px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--sidebar-border);
+  border-radius: var(--r);
+  overflow: hidden;
+  transition: all var(--transition);
+  flex-shrink: 0;
+}
+
+.sidebar.collapsed .sidebar-balance-panel {
+  margin: 8px;
+  padding: 10px 6px;
+}
+
+.balance-label {
+  font-size: 9px;
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.3);
+  margin-bottom: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  transition: opacity var(--transition);
+}
+
+.sidebar.collapsed .balance-label { opacity: 0; }
+
+.balance-amount {
+  font-family: 'Fraunces', serif;
+  font-size: 1.4rem;
+  font-weight: 300;
+  color: #fff;
+  letter-spacing: -0.5px;
+  margin-bottom: 10px;
+  white-space: nowrap;
+  overflow: hidden;
+  transition: opacity var(--transition), font-size var(--transition);
+}
+
+.sidebar.collapsed .balance-amount {
+  font-size: 0.7rem;
+  opacity: 0.5;
+  margin-bottom: 4px;
+}
+
+.balance-stats {
+  display: flex;
+  gap: 6px;
+  transition: opacity var(--transition);
+}
+
+.sidebar.collapsed .balance-stats { opacity: 0; pointer-events: none; }
+
+.bstat {
+  flex: 1;
+  background: rgba(255,255,255,0.05);
+  border-radius: var(--r-sm);
+  padding: 6px 8px;
+}
+
+.bstat-label {
+  font-size: 8.5px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.28);
+  margin-bottom: 3px;
+}
+
+.bstat-val {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  font-weight: 400;
+}
+
+.bstat-val.pos { color: #6ddfaa; }
+.bstat-val.neg { color: #f09090; }
+
+/* Nav */
+.sidebar-nav {
+  flex: 1;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.nav-group-label {
+  font-size: 8.5px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.2);
+  padding: 10px 10px 5px;
+  white-space: nowrap;
+  overflow: hidden;
+  transition: opacity var(--transition);
+}
+
+.sidebar.collapsed .nav-group-label { opacity: 0; }
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  color: rgba(255,255,255,0.42);
+  font-size: 13px;
+  font-weight: 400;
+  transition: background var(--transition), color var(--transition);
+  border: none;
+  background: transparent;
+  width: 100%;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  position: relative;
+}
+
+.nav-link:hover {
+  background: var(--sidebar-hover);
+  color: rgba(255,255,255,0.75);
+}
+
+.nav-link.active {
+  background: var(--sidebar-active);
+  color: #fff;
+  font-weight: 500;
+}
+
+.nav-link.active::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 6px; bottom: 6px;
+  width: 2px;
+  background: #6ddfaa;
+  border-radius: 0 2px 2px 0;
+}
+
+.nav-icon {
+  width: 18px; height: 18px;
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.nav-icon svg { display: block; }
+
+.nav-label {
+  transition: opacity var(--transition);
+  overflow: hidden;
+}
+
+.sidebar.collapsed .nav-label { opacity: 0; }
+
+.nav-badge {
+  margin-left: auto;
+  background: var(--green);
+  color: #c8f0d8;
+  font-size: 9px;
+  font-family: 'DM Mono', monospace;
+  padding: 1px 6px;
+  border-radius: 20px;
+  flex-shrink: 0;
+  transition: opacity var(--transition);
+}
+
+.sidebar.collapsed .nav-badge { opacity: 0; }
+
+/* Toggle button */
+.sidebar-toggle {
+  padding: 12px 16px;
+  border-top: 1px solid var(--sidebar-border);
+  flex-shrink: 0;
+}
+
+.toggle-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: rgba(255,255,255,0.35);
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  transition: background var(--transition), color var(--transition);
+}
+
+.toggle-btn:hover {
+  background: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.65);
+}
+
+.toggle-icon {
+  transition: transform var(--transition);
+  flex-shrink: 0;
+}
+
+.sidebar.collapsed .toggle-icon { transform: rotate(180deg); }
+
+.toggle-text {
+  white-space: nowrap;
+  overflow: hidden;
+  transition: opacity var(--transition), max-width var(--transition);
+  max-width: 100px;
+}
+
+.sidebar.collapsed .toggle-text { opacity: 0; max-width: 0; }
+
+/* ════════════════════════════════════════
+   MAIN
+════════════════════════════════════════ */
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-width: 0;
+}
+
+/* Topbar */
+.topbar {
+  height: var(--topbar-h);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 28px;
+  flex-shrink: 0;
+  z-index: 10;
+}
+
+.topbar-left { display: flex; flex-direction: column; gap: 1px; }
+
+.topbar-title {
+  font-family: 'Fraunces', serif;
+  font-size: 1.1rem;
+  font-weight: 400;
+  color: var(--ink);
+  letter-spacing: -0.3px;
+}
+
+.topbar-sub {
+  font-size: 11px;
+  color: var(--ink-4);
+}
+
+.topbar-right { display: flex; align-items: center; gap: 10px; }
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: var(--r-sm);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition);
+  border: none;
+  line-height: 1;
+}
+
+.btn-primary {
+  background: var(--green);
+  color: #fff;
+}
+
+.btn-primary:hover { background: var(--green-mid); box-shadow: 0 2px 8px rgba(30,92,58,0.3); transform: translateY(-1px); }
+
+.btn-ghost {
+  background: transparent;
+  color: var(--ink-2);
+  border: 1px solid var(--border);
+}
+
+.btn-ghost:hover { background: var(--surface-alt); }
+
+.btn-destroy {
+  background: transparent;
+  color: var(--ink-5);
+  border: 1px solid transparent;
+  padding: 4px 8px;
+  font-size: 11px;
+  border-radius: var(--r-xs);
+}
+
+.btn-destroy:hover { background: var(--red-light); color: var(--red); border-color: rgba(158,42,43,0.2); }
+
+/* Content */
+.content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px 28px 48px;
+}
+
+/* ════════════════════════════════════════
+   PANELS
+════════════════════════════════════════ */
+.panel { display: none; }
+.panel.active { display: block; animation: fadeUp 0.22s ease; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ════════════════════════════════════════
+   DASHBOARD
+════════════════════════════════════════ */
+.dash-row-1 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 18px 20px 16px;
+  box-shadow: var(--shadow-xs);
+  position: relative;
+  overflow: hidden;
+  transition: box-shadow var(--transition), transform var(--transition);
+}
+
+.stat-card:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
+
+.stat-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--ink-4);
+  margin-bottom: 10px;
+}
+
+.stat-val {
+  font-family: 'Fraunces', serif;
+  font-size: 1.7rem;
+  font-weight: 300;
+  letter-spacing: -1px;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+
+.stat-val.green { color: var(--green); }
+.stat-val.red   { color: var(--red); }
+.stat-val.ink   { color: var(--ink); }
+
+.stat-sub {
+  font-size: 11px;
+  color: var(--ink-4);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.stat-pill {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 20px;
+  letter-spacing: 0.3px;
+}
+
+.stat-pill.green { background: var(--green-light); color: var(--green); }
+.stat-pill.red   { background: var(--red-light); color: var(--red); }
+.stat-pill.blue  { background: var(--blue-light); color: var(--blue); }
+
+.stat-accent-line {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 2px;
+}
+
+.stat-accent-line.green { background: linear-gradient(90deg, var(--green), var(--green-mid)); }
+.stat-accent-line.red   { background: linear-gradient(90deg, var(--red), #c44444); }
+.stat-accent-line.blue  { background: linear-gradient(90deg, var(--blue), #2a6ab0); }
+
+/* Dash row 2 */
+.dash-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 280px;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+/* Card base */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  box-shadow: var(--shadow-xs);
+  overflow: hidden;
+}
+
+.card-head {
+  padding: 14px 18px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.card-title {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.card-body { padding: 14px 18px 18px; }
+
+/* Spend chart */
+.spend-bars { display: flex; flex-direction: column; gap: 9px; }
+
+.spend-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.spend-cat {
+  font-size: 11.5px;
+  color: var(--ink-2);
+  width: 88px;
+  flex-shrink: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.spend-track {
+  flex: 1;
+  height: 4px;
+  background: var(--surface-alt);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.spend-fill {
+  height: 100%;
+  border-radius: 99px;
+  background: var(--red);
+  opacity: 0.55;
+}
+
+.spend-val {
+  font-family: 'DM Mono', monospace;
+  font-size: 10.5px;
+  color: var(--ink-4);
+  width: 88px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* Cash flow — simple SVG line */
+.cashflow-wrap {
+  position: relative;
+}
+
+.cashflow-legend {
+  display: flex;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+
+.cf-leg {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: var(--ink-3);
+}
+
+.cf-dot {
+  width: 8px; height: 3px;
+  border-radius: 99px;
+}
+
+.cf-dot.green { background: var(--green); }
+.cf-dot.red   { background: var(--red); }
+
+/* Recent tx in dash */
+.recent-tx { display: flex; flex-direction: column; }
+
+.rtx-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.rtx-row:last-child { border-bottom: none; }
+
+.rtx-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.rtx-dot.income  { background: var(--green); }
+.rtx-dot.expense { background: var(--red); }
+
+.rtx-body { flex: 1; min-width: 0; }
+
+.rtx-name {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rtx-meta {
+  font-size: 10.5px;
+  color: var(--ink-4);
+  margin-top: 1px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.rtx-amt {
+  font-family: 'DM Mono', monospace;
+  font-size: 11.5px;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.rtx-amt.income  { color: var(--green); }
+.rtx-amt.expense { color: var(--red); }
+
+/* Budget health in dash */
+.bhealth-list { display: flex; flex-direction: column; gap: 10px; }
+
+.bhealth-row { }
+
+.bhealth-top {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 5px;
+}
+
+.bhealth-cat { font-size: 12px; color: var(--ink-2); font-weight: 500; }
+.bhealth-pct {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: var(--ink-4);
+}
+
+.btrack {
+  height: 3px;
+  background: var(--surface-alt);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.bfill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+}
+
+/* Dash row 3 */
+.dash-row-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+/* ════════════════════════════════════════
+   COLLAPSIBLE SECTIONS
+════════════════════════════════════════ */
+.collapsible {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  box-shadow: var(--shadow-xs);
+  margin-bottom: 10px;
+  overflow: hidden;
+  transition: box-shadow var(--transition);
+}
+
+.collapsible:hover { box-shadow: var(--shadow-sm); }
+.collapsible.open  { box-shadow: var(--shadow-sm); }
+
+.collapsible-trigger {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  width: 100%;
+  text-align: left;
+  transition: background var(--transition);
+  user-select: none;
+}
+
+.collapsible-trigger:hover { background: var(--surface-alt); }
+.collapsible.open .collapsible-trigger { border-bottom: 1px solid var(--border); }
+
+.collapsible-icon {
+  width: 26px; height: 26px;
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: background var(--transition);
+}
+
+.collapsible.open .collapsible-icon { background: var(--green-light); border-color: rgba(30,92,58,0.2); }
+.collapsible.open .collapsible-icon svg { color: var(--green); }
+
+.collapsible-info { flex: 1; min-width: 0; }
+
+.collapsible-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.collapsible-sub {
+  font-size: 11px;
+  color: var(--ink-4);
+  margin-top: 1px;
+}
+
+.collapsible-meta { display: flex; align-items: center; gap: 8px; }
+
+.collapsible-count {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: var(--ink-5);
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 2px 9px;
+}
+
+.collapsible-arrow {
+  color: var(--ink-5);
+  transition: transform var(--transition);
+  flex-shrink: 0;
+}
+
+.collapsible.open .collapsible-arrow { transform: rotate(180deg); }
+
+.collapsible-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s cubic-bezier(0.4,0,0.2,1);
+}
+
+.collapsible.open .collapsible-body {
+  max-height: 2000px;
+  transition: max-height 0.5s cubic-bezier(0.4,0,0.2,1);
+}
+
+.collapsible-content { padding: 18px; }
+
+/* ════════════════════════════════════════
+   TRANSAKSI
+════════════════════════════════════════ */
+.tx-layout {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 18px;
+  align-items: start;
+}
+
+/* Form */
+.form-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  box-shadow: var(--shadow-xs);
+  overflow: hidden;
+  position: sticky;
+  top: 0;
+}
+
+.form-head {
+  padding: 13px 18px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-alt);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.form-head-title {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  color: var(--ink-2);
+}
+
+.form-body { padding: 18px; }
+.form-foot {
+  padding: 13px 18px;
+  border-top: 1px solid var(--border);
+  background: var(--surface-alt);
+}
+
+/* Field */
+.f { margin-bottom: 13px; }
+.f:last-child { margin-bottom: 0; }
+.f-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+.f-label {
+  display: block;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--ink-4);
+  margin-bottom: 5px;
+}
+
+input[type="text"],
+input[type="number"],
+input[type="date"],
+select,
+textarea {
+  width: 100%;
+  background: var(--canvas);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-sm);
+  color: var(--ink);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  padding: 8px 11px;
+  outline: none;
+  transition: border-color var(--transition), box-shadow var(--transition), background var(--transition);
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px var(--green-glow);
+  background: var(--surface);
+}
+
+select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23a09b92'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 28px;
+  cursor: pointer;
+}
+
+textarea { resize: vertical; min-height: 78px; line-height: 1.6; }
+
+/* Type toggle */
+.type-seg {
+  display: flex;
+  background: var(--canvas);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-sm);
+  padding: 3px;
+  gap: 2px;
+}
+
+.seg-btn {
+  flex: 1;
+  padding: 7px;
+  border: none;
+  border-radius: var(--r-xs);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition);
+  background: transparent;
+  color: var(--ink-4);
+}
+
+.seg-btn.sel-expense { background: var(--red); color: #fff; }
+.seg-btn.sel-income  { background: var(--green); color: #fff; }
+
+/* Filter row */
+.filter-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+  align-items: center;
+}
+
+.filter-row input,
+.filter-row select {
+  font-size: 12px;
+  padding: 7px 10px;
+}
+
+.filter-row .s-wrap { flex: 1; position: relative; }
+.filter-row .s-wrap input { padding-left: 28px; }
+
+.s-icon {
+  position: absolute;
+  left: 9px; top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: var(--ink-5);
+  display: flex; align-items: center;
+}
+
+/* Transaction list */
+.tx-list { display: flex; flex-direction: column; gap: 5px; }
+
+.tx-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+.tx-item:hover { border-color: var(--border-strong); box-shadow: var(--shadow-xs); }
+
+.tx-indicator {
+  width: 3px;
+  height: 30px;
+  border-radius: 99px;
+  flex-shrink: 0;
+}
+
+.tx-indicator.income  { background: var(--green); opacity: 0.7; }
+.tx-indicator.expense { background: var(--red);   opacity: 0.7; }
+
+.tx-body { flex: 1; min-width: 0; }
+
+.tx-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 2px;
+}
+
+.tx-meta {
+  font-size: 10.5px;
+  color: var(--ink-4);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.chip {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: var(--r-xs);
+  font-size: 10px;
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  color: var(--ink-3);
+}
+
+.tx-amount {
+  font-family: 'DM Mono', monospace;
+  font-size: 12.5px;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.tx-amount.income  { color: var(--green); }
+.tx-amount.expense { color: var(--red); }
+
+/* ════════════════════════════════════════
+   BUDGET
+════════════════════════════════════════ */
+.budget-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 18px;
+  align-items: start;
+}
+
+.budget-grid { display: flex; flex-direction: column; gap: 8px; }
+
+.budget-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 14px 16px;
+  transition: box-shadow var(--transition);
+}
+
+.budget-item:hover { box-shadow: var(--shadow-sm); }
+
+.bi-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.bi-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.bi-right { display: flex; align-items: center; gap: 8px; }
+
+.bi-pct {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+}
+
+.bi-bar {
+  height: 4px;
+  background: var(--surface-deep);
+  border-radius: 99px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.bi-fill { height: 100%; border-radius: 99px; transition: width 0.5s cubic-bezier(0.4,0,0.2,1); }
+
+.bi-bottom {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--ink-4);
+}
+
+.bi-bottom strong {
+  font-family: 'DM Mono', monospace;
+  font-weight: 400;
+  color: var(--ink-2);
+}
+
+/* ════════════════════════════════════════
+   GOALS
+════════════════════════════════════════ */
+.goals-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 18px;
+  align-items: start;
+}
+
+.goals-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.goal-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 18px;
+  transition: box-shadow var(--transition), transform var(--transition);
+}
+
+.goal-item:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
+
+.gi-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 14px;
+}
+
+.gi-label {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 20px;
+  background: var(--surface-alt);
+  color: var(--ink-4);
+  border: 1px solid var(--border);
+}
+
+.gi-name {
+  font-family: 'Fraunces', serif;
+  font-size: 1rem;
+  font-weight: 400;
+  color: var(--ink);
+  margin-bottom: 2px;
+  letter-spacing: -0.2px;
+}
+
+.gi-date { font-size: 11px; color: var(--ink-4); margin-bottom: 14px; }
+
+.gi-nums {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 8px;
+}
+
+.gi-current {
+  font-family: 'Fraunces', serif;
+  font-size: 1.2rem;
+  font-weight: 300;
+  color: var(--ink);
+  letter-spacing: -0.5px;
+}
+
+.gi-of {
+  font-family: 'DM Mono', monospace;
+  font-size: 10.5px;
+  color: var(--ink-4);
+}
+
+.gi-badge {
+  display: inline-block;
+  margin-top: 8px;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 20px;
+}
+
+/* ════════════════════════════════════════
+   LAPORAN
+════════════════════════════════════════ */
+.report-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.rpt-table { width: 100%; border-collapse: collapse; }
+
+.rpt-table th {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--ink-4);
+  padding: 8px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+
+.rpt-table td {
+  padding: 9px 12px;
+  font-size: 12px;
+  color: var(--ink-2);
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+
+.rpt-table tr:last-child td { border-bottom: none; }
+.rpt-table tr:hover td { background: var(--surface-alt); }
+
+.rpt-bar {
+  height: 3px;
+  border-radius: 99px;
+  min-width: 2px;
+}
+
+/* ════════════════════════════════════════
+   CATATAN
+════════════════════════════════════════ */
+.notes-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 18px;
+  align-items: start;
+}
+
+.notes-list { display: flex; flex-direction: column; gap: 8px; }
+
+.note-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 16px 18px;
+  transition: box-shadow var(--transition);
+}
+
+.note-item:hover { box-shadow: var(--shadow-sm); }
+
+.note-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+
+.note-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.note-date { font-size: 10px; color: var(--ink-5); }
+
+.note-body {
+  font-size: 12.5px;
+  color: var(--ink-3);
+  line-height: 1.75;
+  white-space: pre-wrap;
+}
+
+/* ════════════════════════════════════════
+   SECTION HEADER
+════════════════════════════════════════ */
+.sec-hd {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.sec-title {
+  font-family: 'Fraunces', serif;
+  font-size: 1rem;
+  font-weight: 400;
+  color: var(--ink);
+  letter-spacing: -0.2px;
+}
+
+/* ════════════════════════════════════════
+   DIVIDER
+════════════════════════════════════════ */
+.divider {
+  height: 1px;
+  background: var(--border);
+  margin: 20px 0;
+}
+
+/* ════════════════════════════════════════
+   EMPTY STATE
+════════════════════════════════════════ */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 20px;
+  text-align: center;
+}
+
+.empty-icon-wrap {
+  width: 44px; height: 44px;
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 12px;
+}
+
+.empty-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-3);
+  margin-bottom: 3px;
+}
+
+.empty-sub { font-size: 11.5px; color: var(--ink-5); }
+
+/* ════════════════════════════════════════
+   TOAST
+════════════════════════════════════════ */
+.toast {
+  position: fixed;
+  bottom: 22px; right: 22px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  background: var(--ink);
+  color: rgba(255,255,255,0.9);
+  padding: 11px 16px;
+  border-radius: var(--r);
+  font-size: 12.5px;
+  box-shadow: var(--shadow-lg);
+  transform: translateY(70px) scale(0.96);
+  opacity: 0;
+  transition: transform var(--transition-spring), opacity 0.2s;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.toast.show { transform: translateY(0) scale(1); opacity: 1; }
+
+.toast-indicator {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: #6ddfaa;
+  flex-shrink: 0;
+}
+
+/* Scrollbars */
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 99px; }
+
+/* Progress */
+.progress {
+  height: 4px;
+  background: var(--surface-deep);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+}
+
+/* Icon helpers */
+.icon { display: block; }
+</style>
+</head>
+<body>
+
+<!-- ═══ SIDEBAR ═══ -->
+<aside class="sidebar" id="sidebar">
+
+  <div class="sidebar-brand">
+    <div class="brand-mark">
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+        <rect width="28" height="28" rx="7" fill="rgba(255,255,255,0.06)"/>
+        <path d="M8 14h5M8 10h12M8 18h8" stroke="#6ddfaa" stroke-width="1.5" stroke-linecap="round"/>
+        <circle cx="20" cy="14" r="2" stroke="rgba(255,255,255,0.4)" stroke-width="1.2"/>
+      </svg>
+    </div>
+    <span class="brand-text">Ledger</span>
+  </div>
+
+  <div class="sidebar-balance-panel">
+    <div class="balance-label">Saldo Bersih</div>
+    <div class="balance-amount" id="sb-bal">Rp 0</div>
+    <div class="balance-stats">
+      <div class="bstat">
+        <div class="bstat-label">Masuk</div>
+        <div class="bstat-val pos" id="sb-in">Rp 0</div>
+      </div>
+      <div class="bstat">
+        <div class="bstat-label">Keluar</div>
+        <div class="bstat-val neg" id="sb-out">Rp 0</div>
+      </div>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-group-label">Utama</div>
+    <button class="nav-link active" onclick="nav('dashboard',this)">
+      <span class="nav-icon">
+        <svg width="15" height="15" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round">
+          <rect x="1" y="1" width="5.5" height="5.5" rx="1.2"/>
+          <rect x="8.5" y="1" width="5.5" height="5.5" rx="1.2"/>
+          <rect x="1" y="8.5" width="5.5" height="5.5" rx="1.2"/>
+          <rect x="8.5" y="8.5" width="5.5" height="5.5" rx="1.2"/>
+        </svg>
+      </span>
+      <span class="nav-label">Dashboard</span>
+    </button>
+    <button class="nav-link" onclick="nav('transaksi',this)">
+      <span class="nav-icon">
+        <svg width="15" height="15" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round">
+          <path d="M2 5h11M2 10h11M9 2l3 3-3 3M6 7l-3 3 3 3"/>
+        </svg>
+      </span>
+      <span class="nav-label">Transaksi</span>
+      <span class="nav-badge" id="nav-badge-tx">0</span>
+    </button>
+    <button class="nav-link" onclick="nav('budget',this)">
+      <span class="nav-icon">
+        <svg width="15" height="15" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round">
+          <rect x="1" y="3" width="13" height="9" rx="1.5"/>
+          <path d="M5 3V2M10 3V2M1 7h13"/>
+        </svg>
+      </span>
+      <span class="nav-label">Budget</span>
+    </button>
+
+    <div class="nav-group-label">Rencana</div>
+    <button class="nav-link" onclick="nav('tabungan',this)">
+      <span class="nav-icon">
+        <svg width="15" height="15" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round">
+          <circle cx="7.5" cy="7.5" r="6"/>
+          <path d="M7.5 4v3.5l2 2"/>
+        </svg>
+      </span>
+      <span class="nav-label">Tabungan</span>
+    </button>
+    <button class="nav-link" onclick="nav('laporan',this)">
+      <span class="nav-icon">
+        <svg width="15" height="15" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round">
+          <path d="M2 13V8M6 13V5M10 13V9M13 13V3"/>
+        </svg>
+      </span>
+      <span class="nav-label">Laporan</span>
+    </button>
+    <button class="nav-link" onclick="nav('catatan',this)">
+      <span class="nav-icon">
+        <svg width="15" height="15" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round">
+          <rect x="2" y="1.5" width="11" height="12" rx="1.5"/>
+          <path d="M5 5h5M5 7.5h5M5 10h3"/>
+        </svg>
+      </span>
+      <span class="nav-label">Catatan</span>
+    </button>
+  </nav>
+
+  <div class="sidebar-toggle">
+    <button class="toggle-btn" onclick="toggleSidebar()">
+      <svg class="toggle-icon" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round">
+        <path d="M9 2L4 7l5 5"/>
+      </svg>
+      <span class="toggle-text">Tutup Sidebar</span>
+    </button>
+  </div>
+</aside>
+
+<!-- ═══ MAIN ═══ -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-title" id="topbar-title">Dashboard</div>
+      <div class="topbar-sub" id="topbar-sub">Ringkasan keuangan kamu hari ini</div>
+    </div>
+    <div class="topbar-right">
+      <button class="btn btn-ghost" onclick="nav('transaksi', document.querySelectorAll('.nav-link')[1])">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+          <path d="M6 1v10M1 6h10"/>
+        </svg>
+        Transaksi Baru
+      </button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ════ DASHBOARD ════ -->
+    <div class="panel active" id="panel-dashboard">
+
+      <!-- KPI Row -->
+      <div class="dash-row-1">
+        <div class="stat-card">
+          <div class="stat-label">Total Pemasukan</div>
+          <div class="stat-val green" id="d-income">Rp 0</div>
+          <div class="stat-sub"><span class="stat-pill green">Masuk</span></div>
+          <div class="stat-accent-line green"></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Total Pengeluaran</div>
+          <div class="stat-val red" id="d-expense">Rp 0</div>
+          <div class="stat-sub"><span class="stat-pill red">Keluar</span></div>
+          <div class="stat-accent-line red"></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Saldo Bersih</div>
+          <div class="stat-val ink" id="d-balance">Rp 0</div>
+          <div class="stat-sub"><span class="stat-pill blue" id="d-savings-rate">—</span></div>
+          <div class="stat-accent-line blue"></div>
+        </div>
+      </div>
+
+      <!-- Row 2: spend chart + budget health + recent -->
+      <div class="dash-row-2">
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">Pengeluaran Terbesar</div>
+          </div>
+          <div class="card-body">
+            <div class="spend-bars" id="d-spend-bars"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">Transaksi Terkini</div>
+            <button class="btn btn-ghost" style="padding:4px 10px;font-size:11px" onclick="nav('transaksi',document.querySelectorAll('.nav-link')[1])">Lihat semua</button>
+          </div>
+          <div class="card-body" style="padding-top:8px">
+            <div class="recent-tx" id="d-recent"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="card-title">Status Budget</div></div>
+          <div class="card-body">
+            <div class="bhealth-list" id="d-budget-health"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 3: goals summary + notes count -->
+      <div class="dash-row-3">
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">Progres Tabungan</div>
+            <button class="btn btn-ghost" style="padding:4px 10px;font-size:11px" onclick="nav('tabungan',document.querySelectorAll('.nav-link')[3])">Kelola</button>
+          </div>
+          <div class="card-body" id="d-goals-summary"></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><div class="card-title">Ringkasan Akun</div></div>
+          <div class="card-body" id="d-account-summary"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════ TRANSAKSI ════ -->
+    <div class="panel" id="panel-transaksi">
+      <div class="tx-layout">
+        <div>
+          <div class="form-panel">
+            <div class="form-head">
+              <div class="form-head-title">Tambah Transaksi</div>
+            </div>
+            <div class="form-body">
+              <div class="f">
+                <label class="f-label">Jenis</label>
+                <div class="type-seg">
+                  <button class="seg-btn sel-expense" id="seg-exp" onclick="setType('expense')">Pengeluaran</button>
+                  <button class="seg-btn" id="seg-inc" onclick="setType('income')">Pemasukan</button>
+                </div>
+                <input type="hidden" id="tx-type" value="expense">
+              </div>
+              <div class="f">
+                <label class="f-label">Jumlah (Rp)</label>
+                <input type="number" id="tx-amount" placeholder="0" min="0">
+              </div>
+              <div class="f">
+                <label class="f-label">Keterangan</label>
+                <input type="text" id="tx-desc" placeholder="Makan siang, gaji, tagihan...">
+              </div>
+              <div class="f-row">
+                <div class="f">
+                  <label class="f-label">Kategori</label>
+                  <select id="tx-cat">
+                    <option>Makanan</option><option>Transport</option><option>Belanja</option>
+                    <option>Hiburan</option><option>Kesehatan</option><option>Pendidikan</option>
+                    <option>Gaji</option><option>Investasi</option><option>Lainnya</option>
+                  </select>
+                </div>
+                <div class="f">
+                  <label class="f-label">Rekening</label>
+                  <select id="tx-acc">
+                    <option>Tunai</option><option>BCA</option><option>Mandiri</option>
+                    <option>GoPay</option><option>OVO</option><option>Dana</option>
+                  </select>
+                </div>
+              </div>
+              <div class="f">
+                <label class="f-label">Tanggal</label>
+                <input type="date" id="tx-date">
+              </div>
+            </div>
+            <div class="form-foot">
+              <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="addTx()">Simpan Transaksi</button>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="filter-row">
+            <div class="s-wrap">
+              <span class="s-icon">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+                  <circle cx="5" cy="5" r="3.5"/><path d="M8 8l2.5 2.5"/>
+                </svg>
+              </span>
+              <input type="text" id="f-search" placeholder="Cari transaksi..." oninput="renderTx()">
+            </div>
+            <select id="f-type" onchange="renderTx()" style="width:130px">
+              <option value="">Semua Jenis</option>
+              <option value="income">Pemasukan</option>
+              <option value="expense">Pengeluaran</option>
+            </select>
+            <select id="f-cat" onchange="renderTx()" style="width:140px">
+              <option value="">Semua Kategori</option>
+              <option>Makanan</option><option>Transport</option><option>Belanja</option>
+              <option>Hiburan</option><option>Kesehatan</option><option>Pendidikan</option>
+              <option>Gaji</option><option>Investasi</option><option>Lainnya</option>
+            </select>
+          </div>
+          <div class="tx-list" id="tx-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════ BUDGET ════ -->
+    <div class="panel" id="panel-budget">
+      <!-- Tambah Budget (collapsible) -->
+      <div class="collapsible" id="coll-budget-form">
+        <button class="collapsible-trigger" onclick="toggleCollapsible('coll-budget-form')">
+          <div class="collapsible-icon">
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+              <path d="M6.5 2v9M2 6.5h9"/>
+            </svg>
+          </div>
+          <div class="collapsible-info">
+            <div class="collapsible-title">Tambah Budget</div>
+            <div class="collapsible-sub">Set limit pengeluaran per kategori</div>
+          </div>
+          <div class="collapsible-arrow">
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+              <path d="M3 5l3.5 3.5L10 5"/>
+            </svg>
+          </div>
+        </button>
+        <div class="collapsible-body">
+          <div class="collapsible-content">
+            <div class="budget-layout">
+              <div class="f">
+                <label class="f-label">Kategori</label>
+                <select id="bud-cat">
+                  <option>Makanan</option><option>Transport</option><option>Belanja</option>
+                  <option>Hiburan</option><option>Kesehatan</option><option>Pendidikan</option><option>Lainnya</option>
+                </select>
+              </div>
+              <div class="f" style="margin-left:0">
+                <label class="f-label">Limit Bulanan (Rp)</label>
+                <input type="number" id="bud-limit" placeholder="0" min="0">
+              </div>
+              <div></div>
+              <button class="btn btn-primary" onclick="addBudget()">Simpan Budget</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sec-hd" style="margin-top:20px">
+        <div class="sec-title">Budget Bulan Ini</div>
+      </div>
+      <div class="budget-grid" id="budget-list"></div>
+    </div>
+
+    <!-- ════ TABUNGAN ════ -->
+    <div class="panel" id="panel-tabungan">
+      <!-- Tambah Target (collapsible) -->
+      <div class="collapsible" id="coll-goal-form">
+        <button class="collapsible-trigger" onclick="toggleCollapsible('coll-goal-form')">
+          <div class="collapsible-icon">
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+              <path d="M6.5 2v9M2 6.5h9"/>
+            </svg>
+          </div>
+          <div class="collapsible-info">
+            <div class="collapsible-title">Tambah Target Baru</div>
+            <div class="collapsible-sub">Buat target tabungan dengan deadline</div>
+          </div>
+          <div class="collapsible-arrow">
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+              <path d="M3 5l3.5 3.5L10 5"/>
+            </svg>
+          </div>
+        </button>
+        <div class="collapsible-body">
+          <div class="collapsible-content">
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;align-items:end">
+              <div class="f" style="margin-bottom:0">
+                <label class="f-label">Nama Target</label>
+                <input type="text" id="goal-name" placeholder="Beli laptop, liburan...">
+              </div>
+              <div class="f" style="margin-bottom:0">
+                <label class="f-label">Target Dana (Rp)</label>
+                <input type="number" id="goal-target" placeholder="0">
+              </div>
+              <div class="f" style="margin-bottom:0">
+                <label class="f-label">Dana Terkumpul (Rp)</label>
+                <input type="number" id="goal-current" placeholder="0">
+              </div>
+              <div class="f" style="margin-bottom:0">
+                <label class="f-label">Deadline</label>
+                <input type="date" id="goal-date">
+              </div>
+              <div style="align-self:end">
+                <button class="btn btn-primary" onclick="addGoal()">Simpan Target</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sec-hd" style="margin-top:20px">
+        <div class="sec-title">Target Saya</div>
+      </div>
+      <div class="goals-grid" id="goals-list"></div>
+    </div>
+
+    <!-- ════ LAPORAN ════ -->
+    <div class="panel" id="panel-laporan">
+      <!-- Summary collapsible -->
+      <div class="collapsible open" id="coll-rpt-exp">
+        <button class="collapsible-trigger" onclick="toggleCollapsible('coll-rpt-exp')">
+          <div class="collapsible-icon">
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+              <path d="M2 11L6.5 2 11 11M4.5 8h4"/>
+            </svg>
+          </div>
+          <div class="collapsible-info">
+            <div class="collapsible-title">Pengeluaran per Kategori</div>
+            <div class="collapsible-sub">Breakdown semua pengeluaran</div>
+          </div>
+          <div class="collapsible-arrow">
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+              <path d="M3 5l3.5 3.5L10 5"/>
+            </svg>
+          </div>
+        </button>
+        <div class="collapsible-body">
+          <div class="collapsible-content" style="padding-top:0">
+            <table class="rpt-table" id="rpt-exp"></table>
+          </div>
+        </div>
+      </div>
+
+      <div class="collapsible open" id="coll-rpt-inc">
+        <button class="collapsible-trigger" onclick="toggleCollapsible('coll-rpt-inc')">
+          <div class="collapsible-icon">
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+              <path d="M6.5 11V2M3 5.5l3.5-3.5L10 5.5"/>
+            </svg>
+          </div>
+          <div class="collapsible-info">
+            <div class="collapsible-title">Pemasukan per Kategori</div>
+            <div class="collapsible-sub">Breakdown semua pemasukan</div>
+          </div>
+          <div class="collapsible-arrow">
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+              <path d="M3 5l3.5 3.5L10 5"/>
+            </svg>
+          </div>
+        </button>
+        <div class="collapsible-body">
+          <div class="collapsible-content" style="padding-top:0">
+            <table class="rpt-table" id="rpt-inc"></table>
+          </div>
+        </div>
+      </div>
+
+      <div class="collapsible open" id="coll-rpt-acc">
+        <button class="collapsible-trigger" onclick="toggleCollapsible('coll-rpt-acc')">
+          <div class="collapsible-icon">
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+              <rect x="1.5" y="3" width="10" height="7" rx="1.2"/>
+              <path d="M1.5 6h10"/>
+            </svg>
+          </div>
+          <div class="collapsible-info">
+            <div class="collapsible-title">Ringkasan per Rekening</div>
+            <div class="collapsible-sub">Total transaksi berdasarkan rekening</div>
+          </div>
+          <div class="collapsible-arrow">
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+              <path d="M3 5l3.5 3.5L10 5"/>
+            </svg>
+          </div>
+        </button>
+        <div class="collapsible-body">
+          <div class="collapsible-content" style="padding-top:0">
+            <table class="rpt-table" id="rpt-acc"></table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════ CATATAN ════ -->
+    <div class="panel" id="panel-catatan">
+      <!-- Tambah Catatan (collapsible) -->
+      <div class="collapsible" id="coll-note-form">
+        <button class="collapsible-trigger" onclick="toggleCollapsible('coll-note-form')">
+          <div class="collapsible-icon">
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+              <path d="M6.5 2v9M2 6.5h9"/>
+            </svg>
+          </div>
+          <div class="collapsible-info">
+            <div class="collapsible-title">Catatan Baru</div>
+            <div class="collapsible-sub">Tulis memo atau pengingat keuangan</div>
+          </div>
+          <div class="collapsible-arrow">
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+              <path d="M3 5l3.5 3.5L10 5"/>
+            </svg>
+          </div>
+        </button>
+        <div class="collapsible-body">
+          <div class="collapsible-content">
+            <div style="display:grid;grid-template-columns:1fr 2fr;gap:12px;align-items:start">
+              <div class="f" style="margin-bottom:0">
+                <label class="f-label">Judul</label>
+                <input type="text" id="note-title" placeholder="Judul catatan...">
+              </div>
+              <div class="f" style="margin-bottom:0">
+                <label class="f-label">Isi Catatan</label>
+                <textarea id="note-body" placeholder="Tulis catatan keuangan kamu..." style="min-height:60px"></textarea>
+              </div>
+            </div>
+            <div style="margin-top:12px">
+              <button class="btn btn-primary" onclick="addNote()">Simpan Catatan</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sec-hd" style="margin-top:20px">
+        <div class="sec-title">Catatan Tersimpan</div>
+      </div>
+      <div class="notes-list" id="notes-list"></div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast">
+  <span class="toast-indicator"></span>
+  <span id="toast-msg"></span>
+</div>
+
+<script>
+/* ══════════════════════════
+   STATE
+══════════════════════════ */
+let TX     = JSON.parse(localStorage.getItem('ldgr_tx')    || '[]');
+let BUD    = JSON.parse(localStorage.getItem('ldgr_bud')   || '[]');
+let GOALS  = JSON.parse(localStorage.getItem('ldgr_goals') || '[]');
+let NOTES  = JSON.parse(localStorage.getItem('ldgr_notes') || '[]');
+
+const persist = () => {
+  localStorage.setItem('ldgr_tx',    JSON.stringify(TX));
+  localStorage.setItem('ldgr_bud',   JSON.stringify(BUD));
+  localStorage.setItem('ldgr_goals', JSON.stringify(GOALS));
+  localStorage.setItem('ldgr_notes', JSON.stringify(NOTES));
+};
+
+/* ══════════════════════════
+   UTILS
+══════════════════════════ */
+const IDR = n => 'Rp\u202f' + Math.abs(Number(n)).toLocaleString('id-ID');
+const today = new Date();
+today.setHours(0,0,0,0);
+
+function toast(msg) {
+  document.getElementById('toast-msg').textContent = msg;
+  const el = document.getElementById('toast');
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2800);
+}
+
+const pgMeta = {
+  dashboard: { title:'Dashboard',   sub: today.toLocaleDateString('id-ID', {weekday:'long', day:'numeric', month:'long', year:'numeric'}) },
+  transaksi: { title:'Transaksi',   sub:'Catat & kelola semua transaksi' },
+  budget:    { title:'Budget',      sub:'Atur limit pengeluaran per kategori' },
+  tabungan:  { title:'Tabungan',    sub:'Target dan progres simpanan' },
+  laporan:   { title:'Laporan',     sub:'Analisis lengkap keuangan kamu' },
+  catatan:   { title:'Catatan',     sub:'Memo dan pengingat keuangan' },
+};
+
+/* ══════════════════════════
+   SIDEBAR
+══════════════════════════ */
+let sidebarOpen = true;
+
+function toggleSidebar() {
+  sidebarOpen = !sidebarOpen;
+  document.getElementById('sidebar').classList.toggle('collapsed', !sidebarOpen);
+}
+
+/* ══════════════════════════
+   NAVIGATION
+══════════════════════════ */
+function nav(page, btn) {
+  document.querySelectorAll('.nav-link').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + page).classList.add('active');
+  document.getElementById('topbar-title').textContent = pgMeta[page].title;
+  document.getElementById('topbar-sub').textContent   = pgMeta[page].sub;
+  if (page === 'dashboard') renderDash();
+  if (page === 'laporan')   renderReport();
+}
+
+/* ══════════════════════════
+   COLLAPSIBLE
+══════════════════════════ */
+function toggleCollapsible(id) {
+  document.getElementById(id).classList.toggle('open');
+}
+
+/* ══════════════════════════
+   SUMMARY
+══════════════════════════ */
+function calcSummary() {
+  const inc = TX.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
+  const exp = TX.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
+  return { inc, exp, bal: inc - exp };
+}
+
+function updateSidebar() {
+  const { inc, exp, bal } = calcSummary();
+  document.getElementById('sb-in').textContent  = IDR(inc);
+  document.getElementById('sb-out').textContent = IDR(exp);
+  document.getElementById('sb-bal').textContent = IDR(bal);
+  document.getElementById('nav-badge-tx').textContent = TX.length;
+}
+
+/* ══════════════════════════
+   TRANSAKSI
+══════════════════════════ */
+document.getElementById('tx-date').value = new Date().toISOString().split('T')[0];
+
+function setType(t) {
+  document.getElementById('tx-type').value = t;
+  document.getElementById('seg-exp').className = 'seg-btn' + (t==='expense'?' sel-expense':'');
+  document.getElementById('seg-inc').className = 'seg-btn' + (t==='income'?' sel-income':'');
+}
+
+function addTx() {
+  const type   = document.getElementById('tx-type').value;
+  const amount = parseFloat(document.getElementById('tx-amount').value);
+  const desc   = document.getElementById('tx-desc').value.trim();
+  const cat    = document.getElementById('tx-cat').value;
+  const acc    = document.getElementById('tx-acc').value;
+  const date   = document.getElementById('tx-date').value;
+  if (!amount || !desc || !date) { toast('Lengkapi semua field'); return; }
+  TX.unshift({ id: Date.now(), type, amount, desc, cat, acc, date });
+  persist(); updateSidebar(); renderTx(); renderDash();
+  document.getElementById('tx-amount').value = '';
+  document.getElementById('tx-desc').value   = '';
+  toast('Transaksi disimpan');
+}
+
+function delTx(id) {
+  TX = TX.filter(t=>t.id!==id);
+  persist(); updateSidebar(); renderTx(); renderDash();
+  toast('Transaksi dihapus');
+}
+
+function renderTx() {
+  const q    = (document.getElementById('f-search')?.value||'').toLowerCase();
+  const typeF = document.getElementById('f-type')?.value||'';
+  const catF  = document.getElementById('f-cat')?.value||'';
+  const list  = TX.filter(t => {
+    return (t.desc.toLowerCase().includes(q)||t.cat.toLowerCase().includes(q))
+      && (!typeF||t.type===typeF)
+      && (!catF||t.cat===catF);
+  });
+
+  const el = document.getElementById('tx-list');
+  if (!list.length) {
+    el.innerHTML = emptyState('Belum ada transaksi', 'Tambahkan transaksi pertama kamu');
+    return;
+  }
+  el.innerHTML = list.map(t=>`
+    <div class="tx-item">
+      <div class="tx-indicator ${t.type}"></div>
+      <div class="tx-body">
+        <div class="tx-name">${t.desc}</div>
+        <div class="tx-meta">
+          <span>${new Date(t.date).toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'})}</span>
+          <span class="chip">${t.cat}</span>
+          <span class="chip">${t.acc}</span>
+        </div>
+      </div>
+      <div class="tx-amount ${t.type}">${t.type==='income'?'+':'-'}${IDR(t.amount)}</div>
+      <button class="btn btn-destroy" onclick="delTx(${t.id})">Hapus</button>
+    </div>`).join('');
+}
+
+/* ══════════════════════════
+   BUDGET
+══════════════════════════ */
+function addBudget() {
+  const cat   = document.getElementById('bud-cat').value;
+  const limit = parseFloat(document.getElementById('bud-limit').value);
+  if (!limit) { toast('Masukkan limit budget'); return; }
+  const idx = BUD.findIndex(b=>b.cat===cat);
+  if (idx>=0) BUD[idx].limit=limit; else BUD.push({cat, limit});
+  persist(); renderBudgets(); renderDash();
+  document.getElementById('bud-limit').value='';
+  toast('Budget disimpan');
+}
+
+function delBudget(cat) {
+  BUD = BUD.filter(b=>b.cat!==cat);
+  persist(); renderBudgets(); renderDash();
+}
+
+function getMonthExpenses() {
+  const n = new Date();
+  return TX.filter(t=>{
+    const d = new Date(t.date);
+    return t.type==='expense' && d.getMonth()===n.getMonth() && d.getFullYear()===n.getFullYear();
+  });
+}
+
+function renderBudgets() {
+  const mExp = getMonthExpenses();
+  const el = document.getElementById('budget-list');
+  if (!BUD.length) { el.innerHTML = emptyState('Belum ada budget','Set limit pengeluaran per kategori'); return; }
+  el.innerHTML = BUD.map(b=>{
+    const spent = mExp.filter(t=>t.cat===b.cat).reduce((s,t)=>s+t.amount,0);
+    const pct   = Math.min(100, Math.round(spent/b.limit*100));
+    const color = pct>=90 ? 'var(--red)' : pct>=70 ? 'var(--amber)' : 'var(--green)';
+    return `
+    <div class="budget-item">
+      <div class="bi-top">
+        <div class="bi-name">${b.cat}</div>
+        <div class="bi-right">
+          <div class="bi-pct" style="color:${color}">${pct}%</div>
+          <button class="btn btn-destroy" onclick="delBudget('${b.cat}')">Hapus</button>
+        </div>
+      </div>
+      <div class="bi-bar"><div class="bi-fill" style="width:${pct}%;background:${color}"></div></div>
+      <div class="bi-bottom">
+        <span>Terpakai <strong>${IDR(spent)}</strong> dari ${IDR(b.limit)}</span>
+        <span>Sisa <strong style="color:${pct>=100?'var(--red)':'var(--green)'}">${IDR(Math.max(0,b.limit-spent))}</strong></span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ══════════════════════════
+   GOALS
+══════════════════════════ */
+function addGoal() {
+  const name    = document.getElementById('goal-name').value.trim();
+  const target  = parseFloat(document.getElementById('goal-target').value);
+  const current = parseFloat(document.getElementById('goal-current').value)||0;
+  const date    = document.getElementById('goal-date').value;
+  if (!name||!target) { toast('Lengkapi nama dan target'); return; }
+  GOALS.push({ id:Date.now(), name, target, current, date });
+  persist(); renderGoals(); renderDash();
+  ['goal-name','goal-target','goal-current','goal-date'].forEach(id=>document.getElementById(id).value='');
+  toast('Target disimpan');
+}
+
+function delGoal(id) {
+  GOALS = GOALS.filter(g=>g.id!==id);
+  persist(); renderGoals(); renderDash();
+}
+
+function renderGoals() {
+  const el = document.getElementById('goals-list');
+  if (!GOALS.length) { el.innerHTML = emptyState('Belum ada target','Buat target tabungan pertama'); return; }
+  el.innerHTML = GOALS.map(g=>{
+    const pct   = Math.min(100,Math.round(g.current/g.target*100));
+    const color = pct>=100?'var(--green)':pct>=60?'var(--blue)':'var(--amber)';
+    const bg    = pct>=100?'var(--green-light)':pct>=60?'var(--blue-light)':'var(--amber-light)';
+    const dl    = g.date ? new Date(g.date).toLocaleDateString('id-ID',{month:'long',year:'numeric'}) : 'Tanpa batas';
+    return `
+    <div class="goal-item">
+      <div class="gi-top">
+        <span class="gi-label">Tabungan</span>
+        <button class="btn btn-destroy" onclick="delGoal(${g.id})">Hapus</button>
+      </div>
+      <div class="gi-name">${g.name}</div>
+      <div class="gi-date">${dl}</div>
+      <div class="gi-nums">
+        <div class="gi-current">${IDR(g.current)}</div>
+        <div class="gi-of">dari ${IDR(g.target)}</div>
+      </div>
+      <div class="progress"><div class="progress-fill" style="width:${pct}%;background:${color}"></div></div>
+      <span class="gi-badge" style="background:${bg};color:${color}">${pct}% tercapai</span>
+    </div>`;
+  }).join('');
+}
+
+/* ══════════════════════════
+   DASHBOARD
+══════════════════════════ */
+function renderDash() {
+  updateSidebar();
+  const { inc, exp, bal } = calcSummary();
+  document.getElementById('d-income').textContent  = IDR(inc);
+  document.getElementById('d-expense').textContent = IDR(exp);
+  document.getElementById('d-balance').textContent = IDR(bal);
+
+  const rate = inc > 0 ? Math.round((bal/inc)*100) : 0;
+  const rateEl = document.getElementById('d-savings-rate');
+  rateEl.textContent = `Saving rate ${rate}%`;
+  rateEl.className   = 'stat-pill ' + (rate>=20?'green':rate>=0?'blue':'red');
+
+  // Spend bars
+  const catMap={};
+  TX.filter(t=>t.type==='expense').forEach(t=>{catMap[t.cat]=(catMap[t.cat]||0)+t.amount;});
+  const cats = Object.entries(catMap).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  const maxC = cats[0]?.[1]||1;
+
+  const sbEl = document.getElementById('d-spend-bars');
+  sbEl.innerHTML = cats.length
+    ? cats.map(([c,v])=>`
+      <div class="spend-row">
+        <div class="spend-cat">${c}</div>
+        <div class="spend-track"><div class="spend-fill" style="width:${v/maxC*100}%"></div></div>
+        <div class="spend-val">${IDR(v)}</div>
+      </div>`).join('')
+    : `<div style="padding:12px 0;color:var(--ink-5);font-size:12px">Belum ada pengeluaran</div>`;
+
+  // Recent
+  const recEl = document.getElementById('d-recent');
+  const recent = TX.slice(0,6);
+  recEl.innerHTML = recent.length
+    ? recent.map(t=>`
+      <div class="rtx-row">
+        <div class="rtx-dot ${t.type}"></div>
+        <div class="rtx-body">
+          <div class="rtx-name">${t.desc}</div>
+          <div class="rtx-meta">
+            <span>${new Date(t.date).toLocaleDateString('id-ID',{day:'numeric',month:'short'})}</span>
+            <span class="chip">${t.cat}</span>
+          </div>
+        </div>
+        <div class="rtx-amt ${t.type}">${t.type==='income'?'+':'-'}${IDR(t.amount)}</div>
+      </div>`).join('')
+    : `<div style="padding:12px 0;color:var(--ink-5);font-size:12px">Belum ada transaksi</div>`;
+
+  // Budget health
+  const mExp = getMonthExpenses();
+  const bhEl = document.getElementById('d-budget-health');
+  bhEl.innerHTML = BUD.length
+    ? BUD.slice(0,5).map(b=>{
+        const spent = mExp.filter(t=>t.cat===b.cat).reduce((s,t)=>s+t.amount,0);
+        const pct   = Math.min(100,Math.round(spent/b.limit*100));
+        const color = pct>=90?'var(--red)':pct>=70?'var(--amber)':'var(--green)';
+        return `
+        <div class="bhealth-row">
+          <div class="bhealth-top">
+            <div class="bhealth-cat">${b.cat}</div>
+            <div class="bhealth-pct" style="color:${color}">${pct}%</div>
+          </div>
+          <div class="btrack"><div class="bfill" style="width:${pct}%;background:${color}"></div></div>
+        </div>`;
+      }).join('')
+    : `<div style="color:var(--ink-5);font-size:12px">Belum ada budget — <a href="#" onclick="nav('budget',document.querySelectorAll('.nav-link')[2]);return false" style="color:var(--green);text-decoration:none">set sekarang</a></div>`;
+
+  // Goals summary
+  const gsEl = document.getElementById('d-goals-summary');
+  gsEl.innerHTML = GOALS.length
+    ? GOALS.slice(0,3).map(g=>{
+        const pct = Math.min(100,Math.round(g.current/g.target*100));
+        const color = pct>=100?'var(--green)':pct>=60?'var(--blue)':'var(--amber)';
+        return `
+        <div style="margin-bottom:12px">
+          <div style="display:flex;justify-content:space-between;margin-bottom:5px">
+            <div style="font-size:12.5px;font-weight:500;color:var(--ink-2)">${g.name}</div>
+            <div style="font-family:'DM Mono',monospace;font-size:10px;color:${color}">${pct}%</div>
+          </div>
+          <div class="progress"><div class="progress-fill" style="width:${pct}%;background:${color}"></div></div>
+        </div>`;
+      }).join('')
+    : `<div style="color:var(--ink-5);font-size:12px">Belum ada target tabungan</div>`;
+
+  // Account summary
+  const accMap={};
+  TX.forEach(t=>{ accMap[t.acc] = accMap[t.acc]||{in:0,out:0}; accMap[t.acc][t.type==='income'?'in':'out']+=t.amount; });
+  const acEl = document.getElementById('d-account-summary');
+  const accEntries = Object.entries(accMap).sort((a,b)=>(b[1].in-b[1].out)-(a[1].in-a[1].out));
+  acEl.innerHTML = accEntries.length
+    ? accEntries.map(([acc,v])=>`
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">
+          <div style="font-size:12.5px;font-weight:500;color:var(--ink-2)">${acc}</div>
+          <div style="font-family:'DM Mono',monospace;font-size:11px;color:${(v.in-v.out)>=0?'var(--green)':'var(--red)'}">${IDR(v.in-v.out)}</div>
+        </div>`).join('').replace(/border-bottom[^;]+;(?=<\/div>\s*$)/,'')
+    : `<div style="color:var(--ink-5);font-size:12px">Belum ada data</div>`;
+}
+
+/* ══════════════════════════
+   LAPORAN
+══════════════════════════ */
+function renderReport() {
+  const byCat = type => {
+    const m={};
+    TX.filter(t=>t.type===type).forEach(t=>{m[t.cat]=(m[t.cat]||0)+t.amount;});
+    return Object.entries(m).sort((a,b)=>b[1]-a[1]);
+  };
+  const byAcc = () => {
+    const m={};
+    TX.forEach(t=>{m[t.acc]=(m[t.acc]||0)+t.amount;});
+    return Object.entries(m).sort((a,b)=>b[1]-a[1]);
+  };
+
+  const mkTable = (data, color, elId) => {
+    const el = document.getElementById(elId);
+    if (!data.length) { el.innerHTML=`<tr><td style="padding:14px 12px;color:var(--ink-5);font-size:12px">Belum ada data</td></tr>`; return; }
+    const max = data[0][1];
+    el.innerHTML = `
+      <thead><tr><th>Kategori</th><th>Jumlah</th><th style="width:100px"></th></tr></thead>
+      <tbody>${data.map(([k,v])=>`
+        <tr>
+          <td>${k}</td>
+          <td><span style="font-family:'DM Mono',monospace">${IDR(v)}</span></td>
+          <td><div class="rpt-bar" style="width:${v/max*100}%;background:${color};opacity:0.55;min-width:2px"></div></td>
+        </tr>`).join('')}</tbody>`;
+  };
+
+  mkTable(byCat('expense'), 'var(--red)',   'rpt-exp');
+  mkTable(byCat('income'),  'var(--green)', 'rpt-inc');
+  mkTable(byAcc(),          'var(--blue)',  'rpt-acc');
+}
+
+/* ══════════════════════════
+   CATATAN
+══════════════════════════ */
+function addNote() {
+  const title = document.getElementById('note-title').value.trim();
+  const body  = document.getElementById('note-body').value.trim();
+  if (!title||!body) { toast('Lengkapi judul dan isi'); return; }
+  NOTES.unshift({ id:Date.now(), title, body, date: new Date().toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'}) });
+  persist(); renderNotes();
+  document.getElementById('note-title').value='';
+  document.getElementById('note-body').value='';
+  toast('Catatan disimpan');
+}
+
+function delNote(id) {
+  NOTES=NOTES.filter(n=>n.id!==id);
+  persist(); renderNotes();
+}
+
+function renderNotes() {
+  const el=document.getElementById('notes-list');
+  if (!NOTES.length) { el.innerHTML=emptyState('Belum ada catatan','Tulis memo atau pengingat keuangan'); return; }
+  el.innerHTML=NOTES.map(n=>`
+    <div class="note-item">
+      <div class="note-head">
+        <div class="note-title">${n.title}</div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span class="note-date">${n.date}</span>
+          <button class="btn btn-destroy" onclick="delNote(${n.id})">Hapus</button>
+        </div>
+      </div>
+      <div class="note-body">${n.body}</div>
+    </div>`).join('');
+}
+
+/* ══════════════════════════
+   EMPTY STATE
+══════════════════════════ */
+function emptyState(title, sub) {
+  return `<div class="empty-state">
+    <div class="empty-icon-wrap">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="var(--ink-5)" stroke-width="1.4" stroke-linecap="round">
+        <circle cx="8" cy="8" r="6"/><path d="M8 5v3M8 11v.5"/>
+      </svg>
+    </div>
+    <div class="empty-title">${title}</div>
+    <div class="empty-sub">${sub}</div>
+  </div>`;
+}
+
+/* ══════════════════════════
+   INIT
+══════════════════════════ */
+renderDash();
+renderTx();
+renderBudgets();
+renderGoals();
+renderNotes();
+</script>
+</body>
+</html>
