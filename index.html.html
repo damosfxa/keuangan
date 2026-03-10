@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ledger — Financial OS</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=DM+Mono:wght@300;400;500&family=Playfair+Display:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
 :root{
@@ -39,12 +39,11 @@
   --r:8px;--rs:6px;--rx:4px;
   --ease:cubic-bezier(0.4,0,0.2,1);
   --spring:cubic-bezier(0.34,1.56,0.64,1);
-  --font:'DM Sans',sans-serif;
-  --mono:'DM Mono',monospace;
-  --display:'Playfair Display',serif;
+  --font:'Inter',sans-serif;
+  --mono:'JetBrains Mono',monospace;
 }
 html,body{height:100%;overflow:hidden;}
-body{font-family:var(--font);font-size:13.5px;background:var(--bg);color:var(--text);display:flex;-webkit-font-smoothing:antialiased;letter-spacing:-0.01em;}
+body{font-family:var(--font);font-size:13px;background:var(--bg);color:var(--text);display:flex;-webkit-font-smoothing:antialiased;}
 body{-webkit-user-select:none;-moz-user-select:none;user-select:none;}
 input,textarea{-webkit-user-select:text;-moz-user-select:text;user-select:text;}
 
@@ -54,7 +53,7 @@ input,textarea{-webkit-user-select:text;-moz-user-select:text;user-select:text;}
 .sb-brand{height:var(--th);display:flex;align-items:center;padding:0 16px;gap:10px;border-bottom:1px solid var(--border);flex-shrink:0;}
 .sb-logo{width:28px;height:28px;background:var(--accent);border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 .sb-logo svg{color:#000;}
-.sb-name{font-family:var(--display);font-size:1rem;font-style:italic;font-weight:400;color:var(--text);white-space:nowrap;opacity:1;transition:opacity .2s;letter-spacing:0;}
+.sb-name{font-family:var(--font);font-size:1rem;font-weight:600;color:var(--text);white-space:nowrap;opacity:1;transition:opacity .2s;}
 .sb.c .sb-name{opacity:0;pointer-events:none;}
 
 .sb-month{margin:10px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:13px;flex-shrink:0;overflow:hidden;transition:padding .25s;}
@@ -99,7 +98,7 @@ input,textarea{-webkit-user-select:text;-moz-user-select:text;user-select:text;}
 .main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;}
 .topbar{height:var(--th);background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 24px;flex-shrink:0;}
 .tb-l{display:flex;flex-direction:column;gap:1px;}
-.tb-title{font-family:var(--display);font-size:.95rem;font-weight:400;color:var(--text);letter-spacing:0;font-style:italic;}
+.tb-title{font-family:var(--font);font-size:.95rem;font-weight:600;color:var(--text);letter-spacing:0;}
 .tb-sub{font-size:11px;color:var(--text3);letter-spacing:0.02em;}
 .tb-r{display:flex;align-items:center;gap:6px;}
 
@@ -142,7 +141,7 @@ input,textarea{-webkit-user-select:text;-moz-user-select:text;user-select:text;}
 .stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:18px 18px 16px;position:relative;overflow:hidden;transition:border-color .2s,box-shadow .2s;}
 .stat:hover{border-color:var(--border2);box-shadow:0 4px 20px rgba(0,0,0,0.4);}
 .stat-lbl{font-size:10px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--text4);margin-bottom:10px;}
-.stat-val{font-family:var(--display);font-size:1.6rem;font-weight:400;letter-spacing:-0.5px;line-height:1;margin-bottom:8px;}
+.stat-val{font-family:var(--mono);font-size:1.5rem;font-weight:300;letter-spacing:-0.5px;line-height:1;margin-bottom:8px;}
 .stat-foot{font-size:11px;color:var(--text3);display:flex;align-items:center;gap:5px;}
 .stat-accent{position:absolute;top:0;right:0;width:60px;height:60px;border-radius:0 var(--r) 0 100%;opacity:.04;}
 
@@ -225,7 +224,7 @@ input[type=month]::-webkit-calendar-picker-indicator{filter:invert(0.5);}
 .bank-card-top{display:flex;justify-content:space-between;align-items:flex-start;}
 .bank-card-name{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.5);}
 .bank-card-type{font-size:9px;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.35);background:rgba(255,255,255,.08);padding:2px 8px;border-radius:20px;border:1px solid rgba(255,255,255,.1);}
-.bank-card-bal{font-family:var(--display);font-size:1.5rem;font-weight:400;color:#fff;letter-spacing:-.3px;font-style:italic;}
+.bank-card-bal{font-family:var(--mono);font-size:1.4rem;font-weight:400;color:#fff;letter-spacing:-.3px;}
 .bank-card-bot{display:flex;justify-content:space-between;align-items:flex-end;}
 .bank-card-label{font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:1px;}
 .bank-card-purpose{font-size:11px;color:rgba(255,255,255,.65);font-weight:500;}
@@ -251,7 +250,7 @@ input[type=month]::-webkit-calendar-picker-indicator{filter:invert(0.5);}
 .modal{background:var(--surface);border:1px solid var(--border2);border-radius:12px;width:500px;max-width:92vw;max-height:85vh;overflow-y:auto;box-shadow:0 24px 80px rgba(0,0,0,.8);transform:scale(.95);transition:transform var(--spring);}
 .modal-ov.open .modal{transform:scale(1);}
 .modal-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--surface);z-index:1;}
-.modal-title{font-family:var(--display);font-size:.95rem;font-weight:400;color:var(--text);font-style:italic;}
+.modal-title{font-family:var(--font);font-size:.95rem;font-weight:600;color:var(--text);}
 .modal-close{background:transparent;border:none;color:var(--text3);cursor:pointer;padding:4px;border-radius:var(--rx);transition:color .15s,background .15s;display:flex;}
 .modal-close:hover{color:var(--text);background:var(--surface3);}
 .modal-body{padding:20px;}
@@ -298,7 +297,7 @@ input[type=month]::-webkit-calendar-picker-indicator{filter:invert(0.5);}
 
 /* ─── SECTION HEAD ─── */
 .sec-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
-.sec-t{font-family:var(--display);font-size:.9rem;font-weight:400;color:var(--text);font-style:italic;}
+.sec-t{font-family:var(--font);font-size:.85rem;font-weight:600;color:var(--text);}
 .dv{height:1px;background:var(--border);margin:14px 0;}
 
 /* ─── DIVIDER LINE ─── */
@@ -490,7 +489,7 @@ input[type=month]::-webkit-calendar-picker-indicator{filter:invert(0.5);}
       <div class="coll-body"><div class="coll-cont">
         <div class="fr">
           <div class="f"><label class="fl">Bulan</label><input type="month" id="saldo-month"></div>
-          <div class="f"><label class="fl">Total Saldo / Gaji (Rp)</label><input type="number" id="saldo-amt" placeholder="0"></div>
+          <div class="f"><label class="fl">Total Saldo / Gaji (Rp)</label><input type="text" id="saldo-amt" placeholder="0" inputmode="numeric"></div>
         </div>
         <div class="f"><label class="fl">Catatan (opsional)</label><input type="text" id="saldo-note" placeholder="Gaji + freelance, dll..."></div>
         <button class="btn btn-p" onclick="saveSaldo()">Simpan & Alokasikan Otomatis</button>
@@ -527,7 +526,7 @@ input[type=month]::-webkit-calendar-picker-indicator{filter:invert(0.5);}
               <option value="lainnya">Lainnya</option>
             </select>
           </div>
-          <div class="f"><label class="fl">Saldo Awal (Rp)</label><input type="number" id="bk-bal" placeholder="0"></div>
+          <div class="f"><label class="fl">Saldo Awal (Rp)</label><input type="text" id="bk-bal" placeholder="0" inputmode="numeric"></div>
         </div>
         <button class="btn btn-p" onclick="addBank()">Tambah Rekening</button>
       </div></div>
@@ -612,7 +611,7 @@ input[type=month]::-webkit-calendar-picker-indicator{filter:invert(0.5);}
               <div class="seg"><button class="seg-btn se" id="seg-e" onclick="setType('expense')">Pengeluaran</button><button class="seg-btn" id="seg-i" onclick="setType('income')">Pemasukan</button></div>
               <input type="hidden" id="tx-type" value="expense">
             </div>
-            <div class="f"><label class="fl">Jumlah (Rp)</label><input type="number" id="tx-amt" placeholder="0" min="0"></div>
+            <div class="f"><label class="fl">Jumlah (Rp)</label><input type="text" id="tx-amt" placeholder="0" inputmode="numeric"></div>
             <div class="f"><label class="fl">Keterangan</label><input type="text" id="tx-desc" placeholder="Keterangan..."></div>
             <div class="fr">
               <div class="f"><label class="fl">Kategori</label>
@@ -651,7 +650,7 @@ input[type=month]::-webkit-calendar-picker-indicator{filter:invert(0.5);}
       <div class="coll-body"><div class="coll-cont">
         <div class="fr">
           <div class="f"><label class="fl">Kategori</label><select id="b-cat"><option>Makanan</option><option>Transport</option><option>Belanja</option><option>Hiburan</option><option>Kesehatan</option><option>Pendidikan</option><option>Lainnya</option></select></div>
-          <div class="f"><label class="fl">Limit Bulanan (Rp)</label><input type="number" id="b-limit" placeholder="0"></div>
+          <div class="f"><label class="fl">Limit Bulanan (Rp)</label><input type="text" id="b-limit" placeholder="0" inputmode="numeric"></div>
         </div>
         <button class="btn btn-p" onclick="addBudget()">Simpan</button>
       </div></div>
@@ -671,8 +670,8 @@ input[type=month]::-webkit-calendar-picker-indicator{filter:invert(0.5);}
       <div class="coll-body"><div class="coll-cont">
         <div class="fr3">
           <div class="f"><label class="fl">Nama Target</label><input type="text" id="g-name" placeholder="Laptop, liburan..."></div>
-          <div class="f"><label class="fl">Target (Rp)</label><input type="number" id="g-target" placeholder="0"></div>
-          <div class="f"><label class="fl">Terkumpul (Rp)</label><input type="number" id="g-cur" placeholder="0"></div>
+          <div class="f"><label class="fl">Target (Rp)</label><input type="text" id="g-target" placeholder="0" inputmode="numeric"></div>
+          <div class="f"><label class="fl">Terkumpul (Rp)</label><input type="text" id="g-cur" placeholder="0" inputmode="numeric"></div>
           <div class="f"><label class="fl">Deadline</label><input type="date" id="g-date"></div>
           <div class="f"><label class="fl">Prioritas</label><select id="g-pri"><option value="tinggi">Tinggi</option><option value="sedang" selected>Sedang</option><option value="rendah">Rendah</option></select></div>
           <div class="f"><label class="fl">Rekening</label><select id="g-bank"><option value="">— Pilih —</option></select></div>
@@ -696,7 +695,7 @@ input[type=month]::-webkit-calendar-picker-indicator{filter:invert(0.5);}
         <div class="fr">
           <div class="f"><label class="fl">Jenis</label><select id="d-type"><option value="hutang">Hutang (aku yang pinjam)</option><option value="piutang">Piutang (aku yang pinjamkan)</option></select></div>
           <div class="f"><label class="fl">Nama</label><input type="text" id="d-name" placeholder="Nama orang..."></div>
-          <div class="f"><label class="fl">Jumlah (Rp)</label><input type="number" id="d-amt" placeholder="0"></div>
+          <div class="f"><label class="fl">Jumlah (Rp)</label><input type="text" id="d-amt" placeholder="0" inputmode="numeric"></div>
           <div class="f"><label class="fl">Jatuh Tempo</label><input type="date" id="d-due"></div>
           <div class="f" style="grid-column:span 2"><label class="fl">Keterangan</label><input type="text" id="d-note" placeholder="Opsional..."></div>
         </div>
@@ -720,7 +719,7 @@ input[type=month]::-webkit-calendar-picker-indicator{filter:invert(0.5);}
       <div class="coll-body"><div class="coll-cont">
         <div class="fr">
           <div class="f"><label class="fl">Nama</label><input type="text" id="r-name" placeholder="Netflix, cicilan, dll..."></div>
-          <div class="f"><label class="fl">Jumlah (Rp)</label><input type="number" id="r-amt" placeholder="0"></div>
+          <div class="f"><label class="fl">Jumlah (Rp)</label><input type="text" id="r-amt" placeholder="0" inputmode="numeric"></div>
           <div class="f"><label class="fl">Frekuensi</label><select id="r-freq"><option value="bulanan">Bulanan</option><option value="mingguan">Mingguan</option><option value="tahunan">Tahunan</option></select></div>
           <div class="f"><label class="fl">Tgl Tagihan</label><input type="number" id="r-day" placeholder="1-31" min="1" max="31"></div>
           <div class="f"><label class="fl">Kategori</label><select id="r-cat"><option>Hiburan</option><option>Kesehatan</option><option>Pendidikan</option><option>Transport</option><option>Lainnya</option></select></div>
@@ -789,7 +788,7 @@ input[type=month]::-webkit-calendar-picker-indicator{filter:invert(0.5);}
   <div class="modal">
     <div class="modal-head"><div class="modal-title">Edit Transaksi</div><button class="modal-close" onclick="closeModal('modal-edit')"><svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M2 2l9 9M11 2L2 11"/></svg></button></div>
     <div class="modal-body">
-      <div class="fr"><div class="f"><label class="fl">Keterangan</label><input type="text" id="e-desc"></div><div class="f"><label class="fl">Jumlah (Rp)</label><input type="number" id="e-amt"></div><div class="f"><label class="fl">Kategori</label><select id="e-cat"><option>Makanan</option><option>Transport</option><option>Belanja</option><option>Hiburan</option><option>Kesehatan</option><option>Pendidikan</option><option>Gaji</option><option>Investasi</option><option>Lainnya</option></select></div><div class="f"><label class="fl">Tanggal</label><input type="date" id="e-date"></div></div>
+      <div class="fr"><div class="f"><label class="fl">Keterangan</label><input type="text" id="e-desc"></div><div class="f"><label class="fl">Jumlah (Rp)</label><input type="text" id="e-amt" inputmode="numeric"></div><div class="f"><label class="fl">Kategori</label><select id="e-cat"><option>Makanan</option><option>Transport</option><option>Belanja</option><option>Hiburan</option><option>Kesehatan</option><option>Pendidikan</option><option>Gaji</option><option>Investasi</option><option>Lainnya</option></select></div><div class="f"><label class="fl">Tanggal</label><input type="date" id="e-date"></div></div>
     </div>
     <div class="modal-foot"><button class="btn btn-g" onclick="closeModal('modal-edit')">Batal</button><button class="btn btn-p" onclick="saveEdit()">Simpan</button></div>
   </div>
@@ -801,7 +800,7 @@ input[type=month]::-webkit-calendar-picker-indicator{filter:invert(0.5);}
     <div class="modal-head"><div class="modal-title">Update Saldo Rekening</div><button class="modal-close" onclick="closeModal('modal-topup')"><svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M2 2l9 9M11 2L2 11"/></svg></button></div>
     <div class="modal-body">
       <input type="hidden" id="topup-id">
-      <div class="f"><label class="fl">Saldo Baru (Rp)</label><input type="number" id="topup-amt" placeholder="0"></div>
+      <div class="f"><label class="fl">Saldo Baru (Rp)</label><input type="text" id="topup-amt" placeholder="0" inputmode="numeric"></div>
       <div class="f"><label class="fl">Keterangan</label><input type="text" id="topup-note" placeholder="Top up, transfer, dll..."></div>
     </div>
     <div class="modal-foot"><button class="btn btn-g" onclick="closeModal('modal-topup')">Batal</button><button class="btn btn-p" onclick="saveTopup()">Simpan</button></div>
@@ -811,6 +810,31 @@ input[type=month]::-webkit-calendar-picker-indicator{filter:invert(0.5);}
 <div class="toast" id="toast"><span class="toast-dot"></span><span id="toast-msg"></span></div>
 
 <script>
+/* ─── FORMAT INPUT RIBUAN ─── */
+function formatRibuan(input){
+  input.addEventListener('input',function(){
+    let raw=this.value.replace(/\./g,'').replace(/[^0-9]/g,'');
+    if(raw===''){this.value='';this._rawVal=0;return;}
+    this._rawVal=parseInt(raw,10);
+    this.value=this._rawVal.toLocaleString('id-ID');
+  });
+  input.addEventListener('focus',function(){
+    if(this._rawVal){this.value=this._rawVal.toLocaleString('id-ID');}
+  });
+}
+function getRaw(input){
+  if(input._rawVal!==undefined)return input._rawVal;
+  const v=input.value.replace(/\./g,'').replace(/[^0-9]/g,'');
+  return v?parseInt(v,10):0;
+}
+
+function initFormatInputs(){
+  ['tx-amt','saldo-amt','bk-bal','b-limit','g-target','g-cur','d-amt','r-amt','topup-amt','e-amt'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el)formatRibuan(el);
+  });
+}
+
 document.addEventListener('contextmenu',e=>e.preventDefault());
 document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&['c','a','s','p','u'].includes(e.key.toLowerCase())&&e.target.tagName!=='INPUT'&&e.target.tagName!=='TEXTAREA')e.preventDefault();});
 
@@ -908,10 +932,11 @@ function addBank(){
   const name=document.getElementById('bk-name').value;
   const alias=document.getElementById('bk-alias').value.trim();
   const purpose=document.getElementById('bk-purpose').value;
-  const bal=parseFloat(document.getElementById('bk-bal').value)||0;
+  const bal=getRaw(document.getElementById('bk-bal'));
   BANKS.push({id:Date.now(),name,alias,purpose,balance:bal});
   persist();renderBanks();updateBankDropdowns();updateTotalBankSaldo();
-  document.getElementById('bk-alias').value='';document.getElementById('bk-bal').value='';
+  document.getElementById('bk-alias').value='';
+  const bkEl=document.getElementById('bk-bal');bkEl.value='';bkEl._rawVal=0;
   toast('Rekening ditambahkan');
 }
 
@@ -924,17 +949,19 @@ function delBank(id){
 function openTopup(id){
   document.getElementById('topup-id').value=id;
   const b=BANKS.find(x=>x.id===id);
-  if(b)document.getElementById('topup-amt').value=b.balance;
+  const el=document.getElementById('topup-amt');
+  if(b){el._rawVal=b.balance;el.value=b.balance.toLocaleString('id-ID');}
   document.getElementById('modal-topup').classList.add('open');
 }
 
 function saveTopup(){
   const id=parseInt(document.getElementById('topup-id').value);
-  const amt=parseFloat(document.getElementById('topup-amt').value)||0;
+  const amt=getRaw(document.getElementById('topup-amt'));
   const b=BANKS.find(x=>x.id===id);
   if(b)b.balance=amt;
   persist();renderBanks();updateTotalBankSaldo();closeModal('modal-topup');
-  document.getElementById('topup-amt').value='';document.getElementById('topup-note').value='';
+  const el=document.getElementById('topup-amt');el.value='';el._rawVal=0;
+  document.getElementById('topup-note').value='';
   toast('Saldo diperbarui');
 }
 
@@ -980,7 +1007,7 @@ function updateBankDropdowns(){
 
 function saveSaldo(){
   const month=document.getElementById('saldo-month').value;
-  const amount=parseFloat(document.getElementById('saldo-amt').value);
+  const amount=getRaw(document.getElementById('saldo-amt'));
   const note=document.getElementById('saldo-note').value.trim();
   if(!month||!amount){toast('Isi bulan dan jumlah saldo','err');return;}
   const idx=SALDOS.findIndex(s=>s.month===month);
@@ -988,7 +1015,8 @@ function saveSaldo(){
   else SALDOS.push({month,amount,note,date:todayStr});
   persist();updateSBMonth();renderSaldoHistory();
   autoAllocate(month,amount);
-  document.getElementById('saldo-amt').value='';document.getElementById('saldo-note').value='';
+  const el=document.getElementById('saldo-amt');el.value='';el._rawVal=0;
+  document.getElementById('saldo-note').value='';
   toast('Saldo disimpan & alokasi diterapkan');
 }
 
@@ -1089,7 +1117,8 @@ function setType(t){
 
 function addTx(){
   const type=document.getElementById('tx-type').value;
-  const amount=parseFloat(document.getElementById('tx-amt').value);
+  const amtEl=document.getElementById('tx-amt');
+  const amount=getRaw(amtEl);
   const desc=document.getElementById('tx-desc').value.trim();
   const cat=document.getElementById('tx-cat').value;
   const acc=document.getElementById('tx-acc').value;
@@ -1097,9 +1126,21 @@ function addTx(){
   const note=document.getElementById('tx-note').value.trim();
   if(!amount||!desc||!date){toast('Lengkapi semua field','err');return;}
   TX.unshift({id:Date.now(),type,amount,desc,cat,acc,date,note});
-  persist();updateSBMonth();renderTx();renderDash();
-  document.getElementById('tx-amt').value='';document.getElementById('tx-desc').value='';document.getElementById('tx-note').value='';
-  toast('Transaksi disimpan');
+
+  // Auto update bank balance
+  const matchBank=BANKS.find(b=>{
+    const label=(b.alias||BANK_LABELS[b.name]||b.name).toLowerCase();
+    return label===acc.toLowerCase()||(b.alias&&b.alias.toLowerCase()===acc.toLowerCase());
+  });
+  if(matchBank){
+    if(type==='expense') matchBank.balance=Math.max(0,matchBank.balance-amount);
+    else matchBank.balance=(matchBank.balance||0)+amount;
+  }
+
+  persist();updateSBMonth();renderTx();renderDash();if(matchBank)renderBanks();
+  amtEl.value='';amtEl._rawVal=0;
+  document.getElementById('tx-desc').value='';document.getElementById('tx-note').value='';
+  toast('Transaksi disimpan'+(matchBank?' · saldo '+( b.alias||BANK_LABELS[matchBank.name]||matchBank.name)+' diperbarui':''));
 }
 
 function delTx(id){if(!confirm('Hapus transaksi ini?'))return;TX=TX.filter(t=>t.id!==id);persist();updateSBMonth();renderTx();renderDash();toast('Dihapus');}
@@ -1107,7 +1148,10 @@ function delTx(id){if(!confirm('Hapus transaksi ini?'))return;TX=TX.filter(t=>t.
 function openEditTx(id){
   const t=TX.find(x=>x.id===id);if(!t)return;
   editTxId=id;
-  document.getElementById('e-desc').value=t.desc;document.getElementById('e-amt').value=t.amount;
+  document.getElementById('e-desc').value=t.desc;
+  const eAmt=document.getElementById('e-amt');
+  eAmt._rawVal=t.amount;
+  eAmt.value=t.amount.toLocaleString('id-ID');
   document.getElementById('e-cat').value=t.cat;document.getElementById('e-date').value=t.date;
   document.getElementById('modal-edit').classList.add('open');
 }
@@ -1115,7 +1159,8 @@ function openEditTx(id){
 function saveEdit(){
   const t=TX.find(x=>x.id===editTxId);if(!t)return;
   t.desc=document.getElementById('e-desc').value.trim();
-  t.amount=parseFloat(document.getElementById('e-amt').value)||t.amount;
+  const eAmt=document.getElementById('e-amt');
+  t.amount=getRaw(eAmt)||t.amount;
   t.cat=document.getElementById('e-cat').value;t.date=document.getElementById('e-date').value;
   persist();closeModal('modal-edit');updateSBMonth();renderTx();renderDash();toast('Diperbarui');
 }
@@ -1148,10 +1193,12 @@ function renderTx(){
 }
 
 function addBudget(){
-  const cat=document.getElementById('b-cat').value;const limit=parseFloat(document.getElementById('b-limit').value);
+  const cat=document.getElementById('b-cat').value;
+  const limitEl=document.getElementById('b-limit');
+  const limit=getRaw(limitEl);
   if(!limit){toast('Masukkan limit','err');return;}
   const i=BUD.findIndex(b=>b.cat===cat);if(i>=0)BUD[i].limit=limit;else BUD.push({cat,limit});
-  persist();renderBudgets();renderDash();document.getElementById('b-limit').value='';toast('Budget disimpan');
+  persist();renderBudgets();renderDash();limitEl.value='';limitEl._rawVal=0;toast('Budget disimpan');
 }
 
 function delBudget(cat){BUD=BUD.filter(b=>b.cat!==cat);persist();renderBudgets();renderDash();}
@@ -1181,13 +1228,16 @@ function renderBudgets(){
 }
 
 function addGoal(){
-  const name=document.getElementById('g-name').value.trim();const target=parseFloat(document.getElementById('g-target').value);
-  const current=parseFloat(document.getElementById('g-cur').value)||0;const date=document.getElementById('g-date').value;
+  const name=document.getElementById('g-name').value.trim();
+  const target=getRaw(document.getElementById('g-target'));
+  const current=getRaw(document.getElementById('g-cur'));
+  const date=document.getElementById('g-date').value;
   const pri=document.getElementById('g-pri').value;const bankId=document.getElementById('g-bank').value;
   if(!name||!target){toast('Lengkapi nama dan target','err');return;}
   GOALS.push({id:Date.now(),name,target,current,date,pri,bankId});
   persist();renderGoals();renderDash();
-  ['g-name','g-target','g-cur','g-date'].forEach(i=>document.getElementById(i).value='');
+  ['g-name','g-date'].forEach(i=>document.getElementById(i).value='');
+  ['g-target','g-cur'].forEach(i=>{const el=document.getElementById(i);el.value='';el._rawVal=0;});
   toast('Target disimpan');
 }
 
@@ -1233,12 +1283,14 @@ function renderGoals(){
 
 function addDebt(){
   const type=document.getElementById('d-type').value;const name=document.getElementById('d-name').value.trim();
-  const amount=parseFloat(document.getElementById('d-amt').value);const due=document.getElementById('d-due').value;
+  const amtEl=document.getElementById('d-amt');
+  const amount=getRaw(amtEl);const due=document.getElementById('d-due').value;
   const note=document.getElementById('d-note').value.trim();
   if(!name||!amount){toast('Lengkapi nama dan jumlah','err');return;}
   DEBTS.push({id:Date.now(),type,name,amount,due,note,lunas:false});
   persist();renderDebts();updateDebtLabels();renderDash();
-  ['d-name','d-amt','d-due','d-note'].forEach(i=>document.getElementById(i).value='');
+  ['d-name','d-due','d-note'].forEach(i=>document.getElementById(i).value='');
+  amtEl.value='';amtEl._rawVal=0;
   toast('Tersimpan');
 }
 
@@ -1277,13 +1329,16 @@ function updateDebtLabels(){
 }
 
 function addRutin(){
-  const name=document.getElementById('r-name').value.trim();const amount=parseFloat(document.getElementById('r-amt').value);
+  const name=document.getElementById('r-name').value.trim();
+  const amtEl=document.getElementById('r-amt');
+  const amount=getRaw(amtEl);
   const freq=document.getElementById('r-freq').value;const day=parseInt(document.getElementById('r-day').value)||1;
   const cat=document.getElementById('r-cat').value;const bankId=document.getElementById('r-bank').value;
   if(!name||!amount){toast('Lengkapi nama dan jumlah','err');return;}
   RUTIN.push({id:Date.now(),name,amount,freq,day,cat,bankId});
   persist();renderRutin();updateRutinLabel();renderDash();
-  ['r-name','r-amt','r-day'].forEach(i=>document.getElementById(i).value='');
+  ['r-name','r-day'].forEach(i=>document.getElementById(i).value='');
+  amtEl.value='';amtEl._rawVal=0;
   toast('Rutin disimpan');
 }
 
@@ -1450,6 +1505,7 @@ document.getElementById('saldo-month').value=today.toISOString().slice(0,7);
 updateBankDropdowns();updateSBMonth();renderDash();renderTx();renderBudgets();
 renderGoals();renderNotes();renderBanks();renderAllocs();renderDebts();
 updateDebtLabels();renderRutin();updateRutinLabel();
+initFormatInputs();
 </script>
 </body>
 </html>
