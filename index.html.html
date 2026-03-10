@@ -812,19 +812,27 @@ input[type=month]::-webkit-calendar-picker-indicator{filter:invert(0.5);}
 <script>
 /* ─── FORMAT INPUT RIBUAN ─── */
 function formatRibuan(input){
+  // init _rawVal from existing value
+  const existing=input.value.replace(/\./g,'').replace(/[^0-9]/g,'');
+  input._rawVal=existing?parseInt(existing,10):0;
+
   input.addEventListener('input',function(){
+    // get cursor position before changing value
+    const sel=this.selectionStart;
+    const oldLen=this.value.length;
     let raw=this.value.replace(/\./g,'').replace(/[^0-9]/g,'');
     if(raw===''){this.value='';this._rawVal=0;return;}
     this._rawVal=parseInt(raw,10);
     this.value=this._rawVal.toLocaleString('id-ID');
-  });
-  input.addEventListener('focus',function(){
-    if(this._rawVal){this.value=this._rawVal.toLocaleString('id-ID');}
+    // restore cursor
+    const diff=this.value.length-oldLen;
+    try{this.setSelectionRange(sel+diff,sel+diff);}catch(e){}
   });
 }
 function getRaw(input){
-  if(input._rawVal!==undefined)return input._rawVal;
-  const v=input.value.replace(/\./g,'').replace(/[^0-9]/g,'');
+  // always re-parse from current displayed value as fallback
+  if(input._rawVal!==undefined&&input._rawVal>0)return input._rawVal;
+  const v=input.value.replace(/\./g,'').replace(/,/g,'').replace(/[^0-9]/g,'');
   return v?parseInt(v,10):0;
 }
 
@@ -913,12 +921,20 @@ function nav(p,btn){
 function toggleC(id){document.getElementById(id).classList.toggle('open');}
 function closeModal(id){document.getElementById(id).classList.remove('open');}
 
-function getCurrentSaldo(){const s=SALDOS.find(x=>x.month===thisMonth);return s?s.amount:0;}
+// Saldo = manual entry SALDOS + semua pemasukan bulan ini (jika belum ada SALDOS entry)
+function getCurrentSaldo(){
+  const s=SALDOS.find(x=>x.month===thisMonth);
+  const incFromTx=getMonthInc().reduce((sum,t)=>sum+t.amount,0);
+  return s ? s.amount : incFromTx;
+}
+
 function getMonthExp(month){const m=month||thisMonth;return TX.filter(t=>{const d=new Date(t.date);return t.type==='expense'&&d.toISOString().slice(0,7)===m;});}
 function getMonthInc(month){const m=month||thisMonth;return TX.filter(t=>{const d=new Date(t.date);return t.type==='income'&&d.toISOString().slice(0,7)===m;});}
 
 function updateSBMonth(){
-  const saldo=getCurrentSaldo();
+  const incFromTx=getMonthInc().reduce((sum,t)=>sum+t.amount,0);
+  const saldoEntry=SALDOS.find(x=>x.month===thisMonth);
+  const saldo=saldoEntry ? saldoEntry.amount : incFromTx;
   const exp=getMonthExp().reduce((s,t)=>s+t.amount,0);
   const remaining=saldo-exp;
   document.getElementById('sb-month-label').textContent=today.toLocaleDateString('id-ID',{month:'long',year:'numeric'});
@@ -1140,7 +1156,7 @@ function addTx(){
   persist();updateSBMonth();renderTx();renderDash();if(matchBank)renderBanks();
   amtEl.value='';amtEl._rawVal=0;
   document.getElementById('tx-desc').value='';document.getElementById('tx-note').value='';
-  toast('Transaksi disimpan'+(matchBank?' · saldo '+( b.alias||BANK_LABELS[matchBank.name]||matchBank.name)+' diperbarui':''));
+  toast('Transaksi disimpan'+(matchBank?' · saldo '+(matchBank.alias||BANK_LABELS[matchBank.name]||matchBank.name)+' diperbarui':''));
 }
 
 function delTx(id){if(!confirm('Hapus transaksi ini?'))return;TX=TX.filter(t=>t.id!==id);persist();updateSBMonth();renderTx();renderDash();toast('Dihapus');}
